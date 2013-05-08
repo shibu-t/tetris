@@ -5,13 +5,46 @@
         <title>Sample</title>
         <script type="text/javascript">
             var ctx;
-            var block = [
-                [1,1],
-                [0,1],
-                [0,1]
+            var blocks = [
+                [
+                    [1,1],
+                    [0,1],
+                    [0,1]
+                ],
+                [
+                    [1,1],
+                    [1,0],
+                    [1,0]
+                ],
+                [
+                    [1,1],
+                    [1,1]
+                ],
+                [
+                    [1,0],
+                    [1,1],
+                    [1,0]
+                ],
+                [
+                    [1,0],
+                    [1,1],
+                    [0,1]
+                ],
+                [
+                    [0,1],
+                    [1,1],
+                    [1,0]
+                ],
+                [
+                    [1],
+                    [1],
+                    [1],
+                    [1]
+                ]
             ];
+            var block = blocks[Math.floor( Math.random() * blocks.length)-1];
             var posx = 0, posy = 0;
-            var map, mapWidth = 10, mapHeight = 20;
+            var map, mapWidth = 10, mapHeight = 22;
 
             function load() {
                 var elmTarget = document.getElementById('target');
@@ -70,17 +103,34 @@
             }
 
             function paint() {
-                ctx.clearRect(0, 0, 200, 400);
+                ctx.clearRect(0, 0, 200, 440);
                 paintMatrix(map, 0, 0, 'rgb(128, 128, 128)');
-                paintMatrix(block, posx, posy, 'rgb(255, 0, 0)');
+                // 最上部はユーザーに見せない
+                if (posy > 2) {
+                    paintMatrix(block, posx, posy, 'rgb(255, 0, 0)');
+                }
 
+                // 一つ下が移動できる座標だったら移動する
                 if (check(map, block, posx, posy + 1)) {
                     posy = posy + 1;
-                }
-                else {
+                } else {
                     mergeMatrix(map, block, posx, posy);
                     clearRows(map);
+                    // 最上部にブロックが積まれた場合ゲームオーバー
+                    if (posy < 2) {
+                        alert('game over');
+                        ctx.clearRect(0, 0, 200, 440);
+                        posx = 0; posy = 0;
+                        map = [];
+                        for (var y = 0; y < mapHeight; y++) {
+                            map[y] = [];
+                            for (var x = 0; x < mapWidth; x++) {
+                                map[y][x] = 0;
+                            }
+                        }
+                    }
                     posx = 0; posy = 0;
+                    block = blocks[Math.floor( Math.random() * blocks.length)];
                 }
             }
 
@@ -112,7 +162,7 @@
                     default:
                         return;
                 }
-                ctx.clearRect(0, 0, 200, 400);
+                ctx.clearRect(0, 0, 200, 420);
                 paintMatrix(block, posx, posy, 'rgb(255, 0, 0)');
                 paintMatrix(map, 0, 0, 'rgb(128, 128, 128)');
             }
@@ -157,6 +207,6 @@
     </head>
 
     <body onload="load()" onkeydown="key(event.keyCode)">
-        <canvas id="target" style="border: 5px solid gray" width="200" height="400"></canvas>
+        <canvas id="target" style="border: 5px solid gray" width="200" height="440"></canvas>
     </body>
 </html>
